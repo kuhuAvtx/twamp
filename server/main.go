@@ -9,25 +9,21 @@ import (
 	"os"
 	"time"
 
+	config "github.com/kuhuAvtx/twamp/conf"
 	utils "github.com/kuhuAvtx/twamp/utils"
 )
 
 var SequenceNumber uint32 = 0
 
-const (
-	CONN_HOST = "localhost"
-	CONN_PORT = "862"
-	CONN_TYPE = "tcp"
-)
-
 func main() {
-	list, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
+	var conf = config.ReadConfig()
+	list, err := net.Listen("tcp", conf.TwampServer.TwampServerHost+":"+conf.TwampServer.TwampServerPort)
 	if err != nil {
 		fmt.Println("Error Server listening:", err.Error())
 		os.Exit(1)
 	}
 	defer list.Close()
-	fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
+	fmt.Println("Listening on " + conf.TwampServer.TwampServerHost + ":" + conf.TwampServer.TwampServerPort)
 	for {
 		// Listen for an incoming connection.
 		conn, err := list.Accept()
@@ -46,17 +42,18 @@ func handleRequest(conn net.Conn) {
 	buf := make([]byte, 1024)
 	// Read the incoming connection into the buffer.
 	_, err := conn.Read(buf)
-	var buffer bytes.Buffer
-	buffer.Write(buf)
 	if err != nil {
 		log.Fatalf("Failed to read from conn. %v", err)
 	}
+	now := time.Now()
+	var buffer bytes.Buffer
+	buffer.Write(buf)
+
 	recvdPacket := utils.MeasurementPacket{}
 	err = binary.Read(&buffer, binary.BigEndian, &recvdPacket)
 	if err != nil {
 		log.Fatalf("Failed to deserialize measurement packet. %v", err)
 	}
-	now := time.Now()
 	fmt.Printf("read value from client=%#v\n", recvdPacket)
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())

@@ -1,0 +1,9 @@
+# Copyright (c) 2020-2021, Aviatrix Systems, Inc.
+
+
+grpc_server:
+  grpc_host: localhost
+  grpc_port: 50051
+twamp_server:
+  twamp_server_host: localhost
+  twamp_server_port: 862

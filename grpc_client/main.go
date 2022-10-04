@@ -5,23 +5,20 @@ package main
 
 import (
 	"context"
-	"flag"
 	"log"
 	"time"
 
+	config "github.com/kuhuAvtx/twamp/conf"
 	pb "github.com/kuhuAvtx/twamp/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-var (
-	addr = flag.String("addr", "localhost:50051", "the address to connect to")
-)
-
 func main() {
-	flag.Parse()
+	var conf = config.ReadConfig()
 	// Set up a connection to the server.
-	conn, err := grpc.Dial(*addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(conf.GrpcServer.GrpcHost+":"+conf.GrpcServer.GrpcPort,
+		grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
@@ -41,7 +38,7 @@ func main() {
 		if recvErr != nil {
 			log.Fatalf("could not Recv: %v", recvErr)
 		}
-		log.Printf("Latency: ", recvd.Latency)
+		log.Printf("Latency: %g", recvd.Latency)
 		time.Sleep(1 * time.Second)
 	}
 }

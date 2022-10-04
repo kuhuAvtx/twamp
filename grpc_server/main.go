@@ -20,18 +20,13 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"log"
 	"net"
 
+	config "github.com/kuhuAvtx/twamp/conf"
 	newclient "github.com/kuhuAvtx/twamp/newclient"
 	pb "github.com/kuhuAvtx/twamp/proto"
 	"google.golang.org/grpc"
-)
-
-var (
-	port = flag.Int("port", 50051, "The server port")
 )
 
 // server is used to implement Server.
@@ -55,8 +50,8 @@ func (s *server) GetMetrics(req *pb.TwampMetricsRequest, server pb.TwampMetricsS
 }
 
 func main() {
-	flag.Parse()
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	var conf = config.ReadConfig()
+	lis, err := net.Listen("tcp", conf.GrpcServer.GrpcHost+":"+conf.GrpcServer.GrpcPort)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}

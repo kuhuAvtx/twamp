@@ -9,19 +9,15 @@ import (
 	"os"
 	"time"
 
+	config "github.com/kuhuAvtx/twamp/conf"
 	utils "github.com/kuhuAvtx/twamp/utils"
-)
-
-const (
-	CONN_HOST = "localhost"
-	CONN_PORT = "862"
-	CONN_TYPE = "tcp"
 )
 
 var SequenceNumber uint32 = 0
 
 func GetLatency() float64 {
-	tcpAddr, err := net.ResolveTCPAddr("tcp", CONN_HOST+":"+CONN_PORT)
+	var conf = config.ReadConfig()
+	tcpAddr, err := net.ResolveTCPAddr("tcp", conf.TwampServer.TwampServerHost+":"+conf.TwampServer.TwampServerPort)
 	fmt.Printf("tcpAddr=%s\n", tcpAddr)
 	if err != nil {
 		fmt.Println("ResolveTCPAddr failed:", err.Error())
@@ -86,7 +82,9 @@ func GetLatency() float64 {
 		log.Fatalf("Failed to deserialize measurement echo packet. %v", err)
 	}
 	fmt.Printf("read value from server=%#v\n", recvdPacket)
-	latency := float64(now.Sub(utils.NewTimestamp(recvdPacket.SenderTimeStamp))) / float64(time.Millisecond)
+	diff := float64(utils.NewTimestamp(recvdPacket.Timestamp).Sub(utils.NewTimestamp(recvdPacket.ReceiveTimeStamp))) / float64(time.Millisecond)
+	fmt.Printf("diff : %g\n", diff)
+	latency := (float64(now.Sub(utils.NewTimestamp(recvdPacket.SenderTimeStamp))) / float64(time.Millisecond)) - diff
 	fmt.Printf("Latency= %g\n", latency)
 	defer conn.Close()
 	return latency
