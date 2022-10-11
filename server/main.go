@@ -64,7 +64,7 @@ func handleRequest(conn net.Conn) {
 		ErrorEstimate:       0x0101, // TODO check this
 		MBZ:                 0x0000,
 		ReceiveTimeStamp:    *utils.NewTwampTimestamp(now),
-		SenderSequence:      0,
+		SenderSequence:      recvdPacket.Sequence,
 		SenderTimeStamp:     recvdPacket.Timestamp,
 		SenderErrorEstimate: recvdPacket.ErrorEstimate,
 		Mbz:                 0x0000,
